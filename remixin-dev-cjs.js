@@ -206,9 +206,7 @@
         if (!_.isArray(requires)) {
           throw new Error("requires should be an array of required property names");
         }
-        var errors = requires.map(function(prop) {
-          return prop in obj ? void 0 : prop;
-        }).filter(Boolean);
+        var errors = _.difference(requires, Object.keys(obj));
         if (errors.length) {
           throw new Error('Object is missing required properties: "' + errors.join('", "') + '"');
         }

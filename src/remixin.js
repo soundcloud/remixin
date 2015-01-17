@@ -242,11 +242,7 @@
           throw new Error('requires should be an array of required property names');
         }
 
-        var errors = requires.map(function (prop) {
-          if (!(prop in obj)) {
-            return prop;
-          }
-        }).filter(Boolean);
+        var errors = _.difference(requires, Object.keys(obj));
         if (errors.length) {
           throw new Error('Object is missing required properties: "' + errors.join('", "') + '"');
         }
