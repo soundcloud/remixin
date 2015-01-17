@@ -1,0 +1,22 @@
+{
+  "name": "remixin-js",
+  "version": "1.0.0",
+  "description": "Aspect-oriented, mixin library",
+  "main": "index.js",
+  "keywords": [
+    "mixin",
+    "aspect-oriented",
+    "oop"
+  ],
+  "author": "SoundCloud",
+  "license": "MIT",
+  "dependencies": {
+    "underscore": "1.7.0"
+  },
+  "devDependencies": {
+    "eslint": "0.11.0",
+    "expect.js": "0.3.1",
+    "mocha": "2.1.0",
+    "uglify-js": "2.4.16"
+  }
+}
