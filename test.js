@@ -1,11 +1,9 @@
-/*globals it, describe */
-var Remixin = require('./index'),
-    expect = require('expect.js'),
-    DebugMixin = require('./remixin-dev-cjs');
+/*globals it, describe, MixinProduction, expect, MixinDebug */
+/*eslint no-shadow: 0 */
 
 describe('Remixin', function () {
   // test on the production version
-  var Mixin = Remixin;
+  var Mixin = MixinProduction;
 
   it('can be applied to objects', function () {
     var obj, hasBaz, fn = function () {};
@@ -489,9 +487,8 @@ describe('Remixin', function () {
   ///////////////////////////////////////////////////////////////////////////////
 
   describe('error checking', function () {
-    /*eslint no-shadow: 0 */
     // Run these tests on the debug build
-    var Mixin = DebugMixin;
+    var Mixin = MixinDebug;
 
     function applyMixinWithMergeValue(val, obj) {
       obj = obj || {};
@@ -649,7 +646,7 @@ describe('Remixin', function () {
   });
 
   describe('when combining mixins', function () {
-    var Mixin = DebugMixin;
+    var Mixin = MixinDebug;
     it('can be combine two mixins', function () {
       var M1, M2, object;
 

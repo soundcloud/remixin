@@ -20,7 +20,7 @@ clean:
 	rm -f $(outputFiles)
 
 test: remixin-cjs.js remixin-dev-cjs.js node_modules
-	$(mocha) test.js
+	$(mocha) --require node-test-adapter.js test.js
 
 remixin-dev-cjs.js: src/remixin.js node_modules
 	$(uglify) src/remixin.js $(devOpts) $(commonOpts) \

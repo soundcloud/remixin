@@ -17,6 +17,7 @@
     "eslint": "0.11.0",
     "expect.js": "0.3.1",
     "mocha": "2.1.0",
+    "node-static": "0.7.6",
     "uglify-js": "2.4.16"
   }
 }
