@@ -1,5 +1,5 @@
 {
-  "name": "remixin-js",
+  "name": "remixin",
   "version": "1.0.0",
   "description": "Aspect-oriented, mixin library",
   "main": "index.js",
@@ -8,6 +8,9 @@
     "aspect-oriented",
     "oop"
   ],
+  "scripts": {
+    "test-server": "static --cache 0"
+  },
   "author": "SoundCloud",
   "license": "MIT",
   "dependencies": {

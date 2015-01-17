@@ -6,7 +6,10 @@ devOpts := \
 	--beautify indent-level=2,bracketize=true \
 	--comments all
 
-prodOpts := --compress pure_getters=true,warnings=false,unsafe=true --mangle
+prodOpts := \
+	--compress pure_getters=true,warnings=false,unsafe=true \
+	--mangle \
+	--comments "/^!/"
 
 commonOpts := --screw-ie8
 
