@@ -60,8 +60,8 @@
     before: function (obj, methods) {
       // apply the befores
       _.each(methods, function (modifierFn, prop) {
-        if (__DEBUG__ && !_.isFunction(obj[prop])) {
-          throw new Error('Object is missing function property "' + prop + '"');
+        if (__DEBUG__) {
+          __assertFunction__(obj, prop);
         }
         var origFn = obj[prop];
         obj[prop] = function () {
@@ -74,8 +74,8 @@
     after: function (obj, methods) {
       // apply the afters
       _.each(methods, function (modifierFn, prop) {
-        if (__DEBUG__ && !_.isFunction(obj[prop])) {
-          throw new Error('Object is missing function property "' + prop + '"');
+        if (__DEBUG__) {
+          __assertFunction__(obj, prop);
         }
         var origFn = obj[prop];
         obj[prop] = function () {
@@ -89,20 +89,16 @@
     around: function (obj, methods) {
       // apply the arounds
       _.each(methods, function (modifierFn, prop) {
-        if (__DEBUG__ && !_.isFunction(obj[prop])) {
-          throw new Error('Object is missing function property "' + prop + '"');
+        if (__DEBUG__) {
+          __assertFunction__(obj, prop);
         }
         var origFn = obj[prop];
 
         obj[prop] = function () {
-          var l = arguments.length,
-              args = new Array(l + 1),
-              i = 0;
-          args[0] = origFn.bind(this);
-          for (; i < l; ++i) {
+          for (var i = 0, l = arguments.length, args = new Array(l + 1); i < l; ++i) {
             args[i + 1] = arguments[i];
           }
-
+          args[0] = origFn.bind(this);
           return modifierFn.apply(this, args);
         };
       });
@@ -122,51 +118,32 @@
         if (value == null) {
           return;
         }
-        if (__DEBUG__ && __isInvalidMergeValue__(value)) {
-          throw new Error('Unsupported data type for merge');
+        if (__DEBUG__) {
+          __assertValidMergeValue__(value);
         }
         var existingVal = obj[prop];
-        if (_.isArray(value)) {
-          if (existingVal === undefined) {
-            obj[prop] = existingVal = [];
-          } else if (!_.isArray(existingVal)) {
-            // lift into an array
-            obj[prop] = existingVal = [existingVal];
-          }
-          Array.prototype.push.apply(existingVal, _.difference(value, existingVal));
-        } else if (_.isString(value)) {
-          if (existingVal === undefined) {
-            obj[prop] = value;
-          } else {
-            obj[prop] = existingVal + ' ' + _.difference(value.split(' '), existingVal.split(' ')).join(' ');
-          }
-        } else { // object
-          if (!existingVal) {
-            obj[prop] = existingVal = {};
-          }
-          if (__DEBUG__ && _.isArray(existingVal)) {
-            throw new Error('Can not merge array with object');
-          }
-          _.defaults(existingVal, value);
-        }
+        obj[prop] = _.isArray(value)  ? mergeArrays(existingVal, value)
+                  : _.isString(value) ? mergeTokenList(existingVal, value)
+                                      : mergeObjects(existingVal, value);
       });
     },
 
     extend: function (obj, properties) {
       // apply the regular properties
-      _.each(properties, function (value, prop) {
-        if (SPECIAL_KEYS.indexOf(prop) < 0) {
-          if (__DEBUG__ && prop in obj) {
+      var toCopy = _.omit(properties, SPECIAL_KEYS);
+      if (__DEBUG__) {
+        Object.keys(toCopy).forEach(function (prop) {
+          if (obj[prop] != null) {
             throw new Error('Mixin overrides existing property "' + prop + '"');
           }
-          obj[prop] = value;
-        }
-      });
+        });
+      }
+      _.extend(obj, toCopy);
     },
 
-    requires: function (obj, requires) {
+    requires: __DEBUG__ ? function (obj, requires) {
       // check the requires -- this is only checked in debug mode.
-      if (__DEBUG__ && requires) {
+      if (requires) {
         if (!_.isArray(requires)) {
           throw new Error('requires should be an array of required property names');
         }
@@ -176,11 +153,11 @@
           throw new Error('Object is missing required properties: "' + errors.join('", "') + '"');
         }
       }
-    },
+    } : _.noop,
 
-    requirePrototype: function (obj, requirePrototype) {
+    requirePrototype: __DEBUG__ ? function (obj, requirePrototype) {
       // check the required prototypes -- this is only checked in debug mode.
-      if (__DEBUG__ && requirePrototype) {
+      if (requirePrototype) {
         if (!_.isObject(requirePrototype)) {
           throw new Error('requirePrototype should be an object');
         }
@@ -188,7 +165,7 @@
           throw new Error('Object is not inherited from required prototype');
         }
       }
-    }
+    } : _.noop
   });
 
   function CurriedMixin(mixin, options) {
@@ -198,11 +175,43 @@
   }
   CurriedMixin.prototype = Mixin.prototype;
 
-  function __isInvalidMergeValue__(value) {
-    return (!_.isObject(value) && !_.isString(value)) || ['isRegExp', 'isDate', 'isFunction'].some(function (fnName) {
-      return _[fnName](value);
-    });
+  function mergeArrays(existingVal, value) {
+    if (existingVal == null) {
+      return value.slice();
+    } else if (!_.isArray(existingVal)) {
+      // lift into an array
+      existingVal = [existingVal];
+    }
+    return uniqueConcat(existingVal, value);
   }
 
+  function uniqueConcat(arr1, arr2) {
+    Array.prototype.push.apply(arr1, _.difference(arr2, arr1));
+    return arr1;
+  }
+
+  function mergeTokenList(existingVal, value) {
+    return existingVal == null
+         ? value
+         : mergeArrays(existingVal.split(/\s+/), value.split(/\s+/)).join(' ');
+  }
+
+  function mergeObjects(existingVal, value) {
+    return _.defaults(existingVal || {}, value);
+  }
+
+  function __assertValidMergeValue__(value) {
+    var isInvalid = (!_.isObject(value) && !_.isString(value)) || ['isRegExp', 'isDate', 'isFunction'].some(function (fnName) {
+      return _[fnName](value);
+    });
+    if (isInvalid) {
+      throw new Error('Unsupported data type for merge');
+    }
+  }
+  function __assertFunction__(obj, property) {
+    if (!_.isFunction(obj[property])) {
+      throw new Error('Object is missing function property "' + property + '"');
+    }
+  }
   return Mixin;
 }));

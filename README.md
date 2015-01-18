@@ -38,7 +38,7 @@ There are 4 files provided in the repository:
 - Files with 'global' export Remixin as a property on the global object (`window`, in the browser). This needs to be injected with underscore before use, as shown above.
 - Files with 'dev' are for development mode: they are not minified, and include error checking.
 
-Since it's not a real JS library readme if there's not a mention of its footprint, **Remixin is 748 bytes gzipped**.
+Since it's not a real JS library readme if there's not a mention of its footprint, **Remixin is 772 bytes gzipped**.
 
 ## Usage
 
