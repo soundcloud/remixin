@@ -1,1 +1,1 @@
-module.exports = require('./remixin-cjs');
+module.exports = require('./dist/remixin-cjs');

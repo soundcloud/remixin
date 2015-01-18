@@ -127,14 +127,13 @@
     },
     extend: function(obj, properties) {
       // apply the regular properties
-      _.each(properties, function(value, prop) {
-        if (SPECIAL_KEYS.indexOf(prop) < 0) {
-          if (prop in obj) {
-            throw new Error('Mixin overrides existing property "' + prop + '"');
-          }
-          obj[prop] = value;
+      var toCopy = _.omit(properties, SPECIAL_KEYS);
+      Object.keys(toCopy).forEach(function(prop) {
+        if (null != obj[prop]) {
+          throw new Error('Mixin overrides existing property "' + prop + '"');
         }
       });
+      _.extend(obj, toCopy);
     },
     requires: function(obj, requires) {
       // check the requires -- this is only checked in debug mode.

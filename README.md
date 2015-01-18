@@ -184,6 +184,12 @@ npm run test-server
 
 ...and then open your browser to http://127.0.0.1:8080/test.html
 
+To see a coverage report:
+
+```shell
+make coverage
+```
+
 [advice]: https://github.com/flightjs/flight/blob/master/lib/advice.js
 [blog]: https://javascriptweblog.wordpress.com/2011/05/31/a-fresh-look-at-javascript-mixins/
 [joose]: http://joose.it/

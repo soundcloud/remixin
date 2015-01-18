@@ -1,9 +1,7 @@
-/*globals it, describe, MixinProduction, expect, MixinDebug */
+/*globals it, describe, Mixin, expect */
 /*eslint no-shadow: 0 */
 
 describe('Remixin', function () {
-  // test on the production version
-  var Mixin = MixinProduction;
 
   it('can be applied to objects', function () {
     var obj, hasBaz, fn = function () {};
@@ -487,9 +485,6 @@ describe('Remixin', function () {
   ///////////////////////////////////////////////////////////////////////////////
 
   describe('error checking', function () {
-    // Run these tests on the debug build
-    var Mixin = MixinDebug;
-
     function applyMixinWithMergeValue(val, obj) {
       obj = obj || {};
       return function () {
@@ -646,7 +641,6 @@ describe('Remixin', function () {
   });
 
   describe('when combining mixins', function () {
-    var Mixin = MixinDebug;
     it('can be combine two mixins', function () {
       var M1, M2, object;
 
