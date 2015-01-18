@@ -11,6 +11,10 @@
   "scripts": {
     "test-server": "static --cache 0"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/soundcloud/remixin.git"
+  },
   "author": "SoundCloud",
   "license": "MIT",
   "dependencies": {
