@@ -629,6 +629,15 @@ describe('Remixin', function () {
       expect(Life.applyTo.bind(Life, Beagle.prototype)).to.not.throwError();
     });
 
+    it('enforces that requirePrototype be an object', function () {
+      expect(function () {
+        var myMixin = new Mixin({
+          requirePrototype: 'abc'
+        });
+        myMixin.applyTo({});
+      }).to.throwError(/requirePrototype should be an object/);
+    });
+
     it('will reject non-array and non-object properties from `merge`', function () {
       expect(applyMixinWithMergeValue(1)).to.throwError(/Unsupported data type for merge/);
       expect(applyMixinWithMergeValue(/abc/)).to.throwError(/Unsupported data type for merge/);
