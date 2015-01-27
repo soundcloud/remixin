@@ -16,23 +16,59 @@
       mixin.applyTo(obj, options);
     };
   }
+  /**
+   * Combine two arrays, ensuring uniqueness of the new values being added.
+   * @param  {?*} existingVal
+   * @param  {Array} value
+   * @return {Array}
+   */
   function mergeArrays(existingVal, value) {
-    if (null == existingVal) {
-      return value.slice();
-    }
-    _.isArray(existingVal) || (// lift into an array
-    existingVal = [ existingVal ]);
-    return uniqueConcat(existingVal, value);
+    return null == existingVal ? value.slice() : uniqueConcat(lift(existingVal), value);
   }
+  /**
+   * Concatenate two arrays, but only including values from the second array not present in the first.
+   * This returns a new object: it does not modify either array.
+   * @param  {Array} arr1
+   * @param  {Array} arr2
+   * @return {Array}
+   */
   function uniqueConcat(arr1, arr2) {
-    Array.prototype.push.apply(arr1, _.difference(arr2, arr1));
-    return arr1;
+    return arr1.concat(_.difference(arr2, arr1));
   }
+  /**
+   * Combine two strings, treating them as a space separated list of tokens.
+   * @param  {?String} existingVal
+   * @param  {String} value
+   * @return {String}
+   */
   function mergeTokenList(existingVal, value) {
-    return null == existingVal ? value : mergeArrays(existingVal.split(/\s+/), value.split(/\s+/)).join(" ");
+    return null == existingVal ? value : mergeArrays(tokenize(existingVal), tokenize(value)).join(" ");
   }
+  /**
+   * Create a new object which has all the properties of the two passed in object, preferring the first object when
+   * there is a key collision.
+   * @param  {?Object} existingVal
+   * @param  {?Object} value
+   * @return {Object}
+   */
   function mergeObjects(existingVal, value) {
-    return _.defaults(existingVal || {}, value);
+    return _.extend({}, value, existingVal);
+  }
+  /**
+   * Convert a string of space separated tokens into an array of tokens.
+   * @param  {String} str
+   * @return {Array.<String>}
+   */
+  function tokenize(str) {
+    return _.compact(str.split(whitespace));
+  }
+  /**
+   * Lift a value into an array, if it is not already one.
+   * @param  {*} value
+   * @return {Array}
+   */
+  function lift(value) {
+    return _.isArray(value) ? value : [ value ];
   }
   function __assertValidMergeValue__(value) {
     var isInvalid = !_.isObject(value) && !_.isString(value) || [ "isRegExp", "isDate", "isFunction" ].some(function(fnName) {
@@ -47,10 +83,8 @@
       throw new Error('Object is missing function property "' + property + '"');
     }
   }
-  var SPECIAL_KEYS = [ "before", "after", "around", "requires", "override", "defaults", "applyTo", "requirePrototype", "merge" ];
+  var SPECIAL_KEYS = [ "before", "after", "around", "requires", "override", "defaults", "applyTo", "requirePrototype", "merge" ], whitespace = /\s+/;
   _.extend(Mixin.prototype, {
-    mixins: null,
-    properties: null,
     applyTo: function(obj, options) {
       var props = this.properties;
       this.defaults(obj, props.defaults);
@@ -96,10 +130,11 @@
         __assertFunction__(obj, prop);
         var origFn = obj[prop];
         obj[prop] = function() {
-          for (var i = 0, l = arguments.length, args = new Array(l + 1); l > i; ++i) {
+          var i = 0, l = arguments.length, args = new Array(l + 1);
+          args[0] = origFn.bind(this);
+          for (;l > i; ++i) {
             args[i + 1] = arguments[i];
           }
-          args[0] = origFn.bind(this);
           return modifierFn.apply(this, args);
         };
       });

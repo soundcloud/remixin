@@ -312,7 +312,7 @@ describe('Remixin', function () {
     expect(obj.element2selector).to.eql({ 'link': 'a' });
   });
 
-  it('can combine arrays', function () {
+  it('can merge arrays', function () {
     var mixin, obj;
 
     obj = {
@@ -406,6 +406,30 @@ describe('Remixin', function () {
     expect(obj).not.to.have.property('undefVal');
   });
 
+  it('won\'t affect prototype objects when merging', function () {
+    // this checks that the target object is not mutated when using merge; rather, a new object is returned
+    var mixin, obj, obj2;
+
+    function MyClass() {}
+    MyClass.prototype.foo = { a: 1 };
+    MyClass.prototype.bar = [ 1 ];
+
+    obj = new MyClass();
+    mixin = new Mixin({
+      merge: {
+        foo: { a: 2, b: 2 },
+        bar: [ 2 ]
+      }
+    });
+
+    mixin.applyTo(obj);
+    expect(obj.foo).to.eql({ a: 1, b: 2});
+    expect(obj.bar).to.eql([1, 2]);
+
+    obj2 = new MyClass();
+    expect(obj2.foo).to.eql({ a: 1 });
+    expect(obj2.bar).to.eql([1]);
+  });
 
   it('Custom applyTo exposes its interface', function () {
     var mixin, obj = {}, ranExpectations = false;
