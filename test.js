@@ -626,6 +626,16 @@ describe('Remixin', function () {
       expect(mixin.applyTo.bind(mixin, obj)).to.throwError(/requires should be an array of required property names/);
     });
 
+    it('will allow for properties defined on the prototype', function () {
+      var obj, mixin;
+      obj = {};
+      mixin = new Mixin({
+        requires: ['toString']
+      });
+
+      expect(mixin.applyTo.bind(mixin, obj)).not.to.throwError();
+    });
+
     it('can enforce a required prototype', function () {
       var Animal = function () {},
           Dog    = function () {},

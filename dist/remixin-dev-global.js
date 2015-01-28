@@ -1,5 +1,5 @@
 /*!
- * Remixin
+ * Remixin v1.0.1
  * (c) SoundCloud 2015
  * Remixin may be freely distributed under the MIT license.
  */
@@ -176,7 +176,9 @@
         if (!_.isArray(requires)) {
           throw new Error("requires should be an array of required property names");
         }
-        var errors = _.difference(requires, Object.keys(obj));
+        var errors = _.compact(requires.map(function(prop) {
+          return prop in obj ? void 0 : prop;
+        }));
         if (errors.length) {
           throw new Error('Object is missing required properties: "' + errors.join('", "') + '"');
         }
