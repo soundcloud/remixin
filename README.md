@@ -66,7 +66,8 @@ When defining a mixin, there are several key words to define method modifiers:
     may modify the return value, and even can decide not to execute the original. Given the power that this provides,
     use with care!
 - `requires`: `{Array.<String>}`
-  - an array of property names which must exist on the target object. Basically defines an expected interface.
+  - an array of property names which must exist on the target object (or its prototype). Basically defines an expected
+    interface.
 - `requirePrototype`: `{Object}`
   - this prototype should be present on the target object's prototype chain. can be used to specify what 'class'
     target should be or from what prototype it should inherit from.
@@ -74,7 +75,7 @@ When defining a mixin, there are several key words to define method modifiers:
   - properties or methods which specifically should override the values already defined on the target object.
 - `defaults`: `{Object.<String,*>}`
   - properties or methods which should be applied to the target object only if they do not already exist on that
-    object or in its prototype chain.
+    object. Properties defined in the prototype chain will be overridden.
 - `merge`: `{Object.<String,Array|Object|String}`
   - a map of objects, arrays or strings to apply to the target object, merging with existing properties if they already
     exist. The merge strategy used depends on the data type used in the mixin:

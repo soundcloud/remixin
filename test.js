@@ -1,6 +1,4 @@
 /*globals it, describe, Mixin, expect */
-/*eslint no-shadow: 0 */
-
 describe('Remixin', function () {
 
   it('can be applied to objects', function () {
@@ -232,48 +230,6 @@ describe('Remixin', function () {
 
     expect(obj.someProp).to.be('modified');   // The property should have been overridden
     expect(obj.someFunc()).to.be('modified'); // The method should have been overridden
-  });
-
-  it('can define default values', function () {
-    var mixin, obj;
-    function Cls() {}
-    function SubCls() {}
-
-    Cls.prototype = {
-      foo: function () {
-        return 'super foo';
-      },
-      bar: function () {
-        return 'super bar';
-      }
-    };
-    SubCls.prototype = Object.create(Cls.prototype);
-
-    SubCls.prototype.foo = function () {
-      return 'sub foo';
-    };
-
-    mixin = new Mixin({
-      defaults: {
-        foo: function () {
-          return 'mixin foo';
-        },
-        bar: function () {
-          return 'mixin bar';
-        },
-        baz: function () {
-          return 'mixin baz';
-        }
-      }
-    });
-
-    mixin.applyTo(SubCls.prototype);
-
-    obj = new SubCls();
-
-    expect(obj.foo()).to.be('sub foo'); // foo was defined on the subclass so it should not have been overwritten
-    expect(obj.bar()).to.be('super bar'); // bar was defined on the superclass so it should have been overwritten
-    expect(obj.baz()).to.be('mixin baz'); // baz was not defined at all, so it should have been applied
   });
 
   it('can merge objects', function () {
@@ -651,7 +607,7 @@ describe('Remixin', function () {
       });
 
       // Mixins should be able to define required prototype
-      expect(Life.applyTo.bind(Life, Car.prototype)).to.throwError(/Object is not inherited from required prototype/);
+      expect(Life.applyTo.bind(Life, Car.prototype)).to.throwError(/Object does not inherit from required prototype/);
 
       // Required prototype can be exact class
       expect(Life.applyTo.bind(Life, Animal.prototype)).to.not.throwError();
@@ -803,6 +759,33 @@ describe('Remixin', function () {
       expect(object.bar).to.be('m2-override');
     });
 
+    it('will apply defaults to objects whose prototype defines that property', function () {
+      var mixin, obj;
+
+      function Cls() {}
+      Cls.prototype = {
+        foo: constant('super foo'),
+        bar: constant('super bar')
+      };
+
+      obj = new Cls();
+      obj.foo = constant('sub foo');
+
+      mixin = new Mixin({
+        defaults: {
+          foo: constant('mixin foo'),
+          bar: constant('mixin bar'),
+          baz: constant('mixin baz')
+        }
+      });
+
+      mixin.applyTo(obj);
+
+      expect(obj.foo()).to.be('sub foo');   // foo was defined on the object so it should not have been overwritten
+      expect(obj.bar()).to.be('mixin bar'); // bar was not defined on the object so it should have been overwritten
+      expect(obj.baz()).to.be('mixin baz'); // baz was not defined at all, so it should have been applied
+    });
+
     it('applies requires modifiers to the target object', function () {
       var M1, M2, object;
 
@@ -951,4 +934,10 @@ function createMixinConfig(mixinName, functionName, output) {
   };
 
   return config;
+}
+
+function constant(val) {
+  return function () {
+    return val;
+  };
 }

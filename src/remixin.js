@@ -113,7 +113,11 @@
     },
 
     defaults: function (obj, properties) {
-      _.defaults(obj, properties);
+      _.each(properties, function (value, prop) {
+        if (!obj.hasOwnProperty(prop)) {
+          obj[prop] = value;
+        }
+      });
     },
 
     merge: function (obj, properties) {
@@ -169,7 +173,7 @@
           throw new Error('requirePrototype should be an object');
         }
         if (!(requirePrototype === obj || requirePrototype.isPrototypeOf(obj))) {
-          throw new Error('Object is not inherited from required prototype');
+          throw new Error('Object does not inherit from required prototype');
         }
       }
     } : _.noop
