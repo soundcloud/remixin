@@ -34,11 +34,13 @@ There are 4 files provided in the repository:
 - `remixin-dev-cjs.js`
 - `remixin-dev-global.js`
 
-- Files with 'cjs' use CommonJS modules. Remixin is exported on `module.exports` and gets access to underscore via `require('underscore')`.
-- Files with 'global' export Remixin as a property on the global object (`window`, in the browser). This needs to be injected with underscore before use, as shown above.
-- Files with 'dev' are for development mode: they are not minified, and include error checking.
+Files with 'cjs' use CommonJS modules. Remixin is exported on `module.exports` and gets access to underscore via `require('underscore')`.
 
-Since it's not a real JS library readme if there's not a mention of its footprint, **Remixin is 772 bytes gzipped**.
+Files with 'global' export Remixin as a property on the global object (`window`, in the browser). This needs to be injected with underscore before use, as shown above.
+
+Files with 'dev' are for development mode: they are not minified, and include error checking.
+
+Since it's not a real JS library readme if there's not a mention of its footprint, **Remixin is 762 bytes gzipped**.
 
 ## Usage
 
@@ -77,7 +79,7 @@ When defining a mixin, there are several key words to define method modifiers:
   - a map of objects, arrays or strings to apply to the target object, merging with existing properties if they already
     exist. The merge strategy used depends on the data type used in the mixin:
     - Arrays are concatenated, ensuring uniqueness.
-    - Objects are extended without replacing existing keys. That is, it uses `_.defaults(target.obj, mixin.obj)`.
+    - Objects are extended without replacing existing keys. That is, it uses `_.extend({}, mixin.obj, target.obj)`.
     - Strings are treated like space-separated token lists: concatenated, ensuring uniqueness.
 
 All other keys are copied onto the target object unless that key already exists. If overriding these keys is desired,
