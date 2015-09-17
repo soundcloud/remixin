@@ -4,6 +4,12 @@ Remixin is the aspect-oriented mixin library developed and in use at [SoundCloud
 
 For an introduction about why you'd want to use a mixin library, Angus Croll and Dan Webb from Twitter gave a good [talk about the concept][slides] and Angus [blogged on the subject][blog].
 
+## Installation
+
+    npm install remixin
+
+...or clone this repository and use the files in `/dist` as described below.
+
 ## Setup
 
 Remixin runs in the browser and NodeJS (available as an npm module). It only has one dependency: underscore.js (or lodash). This library is included automatically as a dependency in node, but is not bundled for browser usage, since you likely are already using underscore or lodash in your application anyway. To use Remixin in the browser, it uses dependency injection to get access to underscore:
