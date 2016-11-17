@@ -1,3 +1,7 @@
+## 1.0.2 (2016-11-17)
+
+- Optimize function calls by avoiding passing the `arguments` object around.
+
 ## 1.0.1 (2015-01-28)
 
 - `merge` will not modify objects present on the target, rather it will create a new object or array and reassign the value. This fixes a bug whereby shared objects (for example, those on a parent class's prototype) were being mutated.
