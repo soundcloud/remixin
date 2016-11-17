@@ -16,6 +16,27 @@
       mixin.applyTo(obj, options);
     };
   }
+  function exec(fn, context, args) {
+    switch (args.length) {
+     case 0:
+      return fn.call(context);
+
+     case 1:
+      return fn.call(context, args[0]);
+
+     case 2:
+      return fn.call(context, args[0], args[1]);
+
+     case 3:
+      return fn.call(context, args[0], args[1], args[2]);
+
+     case 4:
+      return fn.call(context, args[0], args[1], args[2], args[3]);
+
+     default:
+      return fn.apply(context, args);
+    }
+  }
   /**
    * Combine two arrays, ensuring uniqueness of the new values being added.
    * @param  {?*} existingVal
@@ -107,8 +128,11 @@
         __assertFunction__(obj, prop);
         var origFn = obj[prop];
         obj[prop] = function() {
-          modifierFn.apply(this, arguments);
-          return origFn.apply(this, arguments);
+          for (var args = new Array(arguments.length), i = 0; i < arguments.length; ++i) {
+            args[i] = arguments[i];
+          }
+          exec(modifierFn, this, args);
+          return exec(origFn, this, args);
         };
       });
     },
@@ -118,8 +142,11 @@
         __assertFunction__(obj, prop);
         var origFn = obj[prop];
         obj[prop] = function() {
-          var ret = origFn.apply(this, arguments);
-          modifierFn.apply(this, arguments);
+          for (var args = new Array(arguments.length), i = 0; i < arguments.length; ++i) {
+            args[i] = arguments[i];
+          }
+          var ret = exec(origFn, this, args);
+          exec(modifierFn, this, args);
           return ret;
         };
       });
@@ -135,7 +162,7 @@
           for (;l > i; ++i) {
             args[i + 1] = arguments[i];
           }
-          return modifierFn.apply(this, args);
+          return exec(modifierFn, this, args);
         };
       });
     },

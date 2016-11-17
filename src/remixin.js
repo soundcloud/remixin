@@ -63,8 +63,10 @@
         }
         var origFn = obj[prop];
         obj[prop] = function () {
-          modifierFn.apply(this, arguments);
-          return origFn.apply(this, arguments);
+          var args = new Array(arguments.length);
+          for (var i = 0; i < arguments.length; ++i) args[i] = arguments[i];
+          exec(modifierFn, this, args);
+          return exec(origFn, this, args);
         };
       });
     },
@@ -77,8 +79,10 @@
         }
         var origFn = obj[prop];
         obj[prop] = function () {
-          var ret = origFn.apply(this, arguments);
-          modifierFn.apply(this, arguments);
+          var args = new Array(arguments.length);
+          for (var i = 0; i < arguments.length; ++i) args[i] = arguments[i];
+          var ret = exec(origFn, this, args);
+          exec(modifierFn, this, args);
           return ret;
         };
       });
@@ -93,16 +97,15 @@
         var origFn = obj[prop];
 
         obj[prop] = function () {
-          var i = 0,
-              l = arguments.length,
-              args = new Array(l + 1);
+          var l = arguments.length;
+          var args = new Array(l + 1);
 
           args[0] = origFn.bind(this);
 
-          for (; i < l; ++i) {
+          for (var i = 0; i < l; ++i) {
             args[i + 1] = arguments[i];
           }
-          return modifierFn.apply(this, args);
+          return exec(modifierFn, this, args);
         };
       });
     },
@@ -185,6 +188,17 @@
     };
   }
   CurriedMixin.prototype = Mixin.prototype;
+
+  function exec(fn, context, args) {
+    switch (args.length) {
+      case 0:  return fn.call(context);
+      case 1:  return fn.call(context, args[0]);
+      case 2:  return fn.call(context, args[0], args[1]);
+      case 3:  return fn.call(context, args[0], args[1], args[2]);
+      case 4:  return fn.call(context, args[0], args[1], args[2], args[3]);
+      default: return fn.apply(context, args);
+    }
+  }
 
   /**
    * Combine two arrays, ensuring uniqueness of the new values being added.
