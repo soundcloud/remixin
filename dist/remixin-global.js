@@ -1,5 +1,5 @@
 /*!
- * Remixin v1.0.1
+ * Remixin v1.0.3
  * (c) SoundCloud 2015
  * Remixin may be freely distributed under the MIT license.
  */
