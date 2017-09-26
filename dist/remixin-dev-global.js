@@ -1,5 +1,5 @@
 /*!
- * Remixin v1.0.1
+ * Remixin v1.0.3
  * (c) SoundCloud 2015
  * Remixin may be freely distributed under the MIT license.
  */
@@ -162,9 +162,9 @@
         __assertFunction__(obj, prop);
         var origFn = obj[prop];
         obj[prop] = function() {
-          var i = 0, l = arguments.length, args = new Array(l + 1);
+          var l = arguments.length, args = new Array(l + 1);
           args[0] = origFn.bind(this);
-          for (;l > i; ++i) {
+          for (var i = 0; l > i; ++i) {
             args[i + 1] = arguments[i];
           }
           return exec(modifierFn, this, args);
