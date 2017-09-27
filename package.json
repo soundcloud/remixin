@@ -18,7 +18,7 @@
   "author": "SoundCloud",
   "license": "MIT",
   "dependencies": {
-    "underscore": "1.7.0"
+    "underscore": "1.8.2"
   },
   "devDependencies": {
     "eslint": "0.11.0",
