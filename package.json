@@ -1,6 +1,6 @@
 {
   "name": "remixin",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Aspect-oriented, mixin library",
   "main": "index.js",
   "keywords": [
