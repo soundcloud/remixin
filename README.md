@@ -1,4 +1,4 @@
-## Remixin
+## Remixin [![version][npm badge]][npm] [![build status][travis badge]][travis]
 
 Remixin is the aspect-oriented mixin library developed and in use at [SoundCloud][soundcloud]. It is inspired by Twitter's [advice.js][advice] and [Joose][joose].
 
@@ -6,7 +6,11 @@ For an introduction about why you'd want to use a mixin library, Angus Croll and
 
 ## Installation
 
-    npm install remixin
+Install the package via npm:
+
+```shell
+npm install remixin
+```
 
 ...or clone this repository and use the files in `/dist` as described below.
 
@@ -14,7 +18,7 @@ For an introduction about why you'd want to use a mixin library, Angus Croll and
 
 Remixin runs in the browser and NodeJS (available as an npm module). It only has one dependency: underscore.js (or lodash). This library is included automatically as a dependency in node, but is not bundled for browser usage, since you likely are already using underscore or lodash in your application anyway. To use Remixin in the browser, it uses dependency injection to get access to underscore:
 
-```javascript
+```js
 // node.js
 var Mixin = require('remixin'); // ready to go!
 ```
@@ -100,11 +104,11 @@ definitely use the development version while working.
 
 ### Custom `applyTo`
 
-If custom code is required for your mixin, then defining a key named 'applyTo' allows a custom method to be executed
+If custom code is required for your mixin, then defining a key named `applyTo` allows a custom method to be executed
 when the mixin is applied. This method is passed two arguments: the target object and any options defined by the
 calling code:
 
-```javascript
+```js
 zoomable = new Mixin({
  applyTo: function (obj, options) {
    this.extend(obj, {
@@ -139,7 +143,7 @@ which gives a View the behaviour of a drop-down menu. Drop-down menus have some 
 such as modal dialogues. These can be combined into a single mixin, to hide the implementation from the class which
 requires the combined behaviour:
 
-```javascript
+```js
 overlay = new Mixin({
   merge: {
     events: {
@@ -167,7 +171,7 @@ dropDownMenu.applyTo(ProfileButton.prototype);
 
 Any number of mixins can be combined into one:
 
-```javascript
+```js
 megaMixin = new Mixin(mixin1, mixin2, mixin3, mixin4, {});
 ```
 
@@ -191,6 +195,10 @@ To see a coverage report:
 make coverage
 ```
 
+[npm]: https://www.npmjs.org/package/remixin
+[npm badge]: https://img.shields.io/npm/v/remixin.svg
+[travis]: https://travis-ci.org/soundcloud/remixin
+[travis badge]: https://img.shields.io/travis/soundcloud/remixin.svg
 [advice]: https://github.com/flightjs/flight/blob/master/lib/advice.js
 [blog]: https://javascriptweblog.wordpress.com/2011/05/31/a-fresh-look-at-javascript-mixins/
 [joose]: http://joose.it/
