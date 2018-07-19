@@ -179,19 +179,11 @@ To create the builds:
 make
 ```
 
-To run the tests in node:
+To run the tests:
 
 ```shell
 make test
 ```
-
-To run the tests in your browser:
-
-```shell
-npm run test-server
-```
-
-...and then open your browser to http://127.0.0.1:8080/test.html
 
 To see a coverage report:
 

@@ -1,6 +1,7 @@
-/*globals it, describe, Mixin, expect */
-describe('Remixin', function () {
+var expect = require('expect.js');
+var Mixin = require('./dist/remixin-dev-cjs');
 
+describe('Remixin', function () {
   it('can be applied to objects', function () {
     var obj, hasBaz, fn = function () {};
     obj = {

@@ -24,15 +24,15 @@ clean:
 	rm -rf dist coverage-files html-report
 
 test: dist/remixin-dev-cjs.js node_modules
-	$(mocha) --require node-test-adapter.js test.js
+	$(mocha) test.js
 
 coverage: html-report/index.html
 	@echo Open html-report/index.html file in your browser
 
 ####
 
-html-report/index.html: coverage-files/dist/remixin-dev-cjs.js coverage-files/test.js coverage-files/node-test-adapter.js
-	$(mocha) --require coverage-files/node-test-adapter.js --reporter mocha-istanbul coverage-files/test.js
+html-report/index.html: coverage-files/dist/remixin-dev-cjs.js coverage-files/test.js
+	$(mocha) --reporter mocha-istanbul coverage-files/test.js
 
 coverage-files/%: %
 	mkdir -p $(@D)
@@ -69,4 +69,3 @@ dist/remixin-global.js: src/remixin.js node_modules
 	$(uglify) src/remixin.js $(prodOpts) $(commonOpts) \
 		--define __EXPORT__=false,__INJECTION__=true,__DEBUG__=false \
 		--output $@
-
