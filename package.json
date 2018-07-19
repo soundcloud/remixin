@@ -2,16 +2,13 @@
   "name": "remixin",
   "version": "1.0.3",
   "description": "Aspect-oriented, mixin library",
-  "main": "index.js",
+  "main": "dist/remixin-cjs",
   "keywords": [
     "mixin",
     "aspect-oriented",
     "oop"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/soundcloud/remixin.git"
-  },
+  "repository": "soundcloud/remixin",
   "author": "SoundCloud",
   "license": "MIT",
   "dependencies": {
