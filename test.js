@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var Mixin = require('./dist/remixin-dev-cjs');
+var Mixin = require('./src/remixin');
 
 describe('Remixin', function () {
   it('can be applied to objects', function () {
