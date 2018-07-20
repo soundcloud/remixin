@@ -32,8 +32,6 @@
     "require": false,
     "__dirname": false,
     "module": true,
-    "__DEBUG__": true,
-    "__EXPORT__": true,
-    "__INJECTION__": true
+    "__DEBUG__": true
   }
 }
