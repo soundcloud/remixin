@@ -12,45 +12,20 @@ Install the package via npm:
 npm install remixin
 ```
 
-...or clone this repository and use the files in `/dist` as described below.
-
-## Setup
-
-Remixin runs in the browser and NodeJS (available as an npm module). It only has one dependency: underscore.js (or lodash). This library is included automatically as a dependency in node, but is not bundled for browser usage, since you likely are already using underscore or lodash in your application anyway. To use Remixin in the browser, it uses dependency injection to get access to underscore:
+And then import it:
 
 ```js
-// node.js
-var Mixin = require('remixin'); // ready to go!
+const { Mixin } = require('remixin');
 ```
+
+Alternatively, download a browser-ready version from the unpkg CDN:
 
 ```html
-<!-- used in the browser -->
-<html>
-<script src="underscore.js"></script>
-<script src="remixin-global.js"></script> <!-- creates window.Remixin -->
-<script>
-  Mixin = Remixin(_); // pass underscore to the global object and it returns the class ready to go.
-</script>
+<script src="https://unpkg.com/underscore"></script> <!-- creates window._ -->
+<script src="https://unpkg.com/remixin"></script> <!-- creates window.remixin -->
 ```
 
-Alternatively, if you're using requirejs, browserify or something similar for browser usage, as long as `require('underscore')` will return something useful, you can use the commonjs version the same as node.
-
-### Files
-
-There are 4 files provided in the repository:
-
-- `remixin-cjs.js`
-- `remixin-global.js`
-- `remixin-dev-cjs.js`
-- `remixin-dev-global.js`
-
-Files with 'cjs' use CommonJS modules. Remixin is exported on `module.exports` and gets access to underscore via `require('underscore')`.
-
-Files with 'global' export Remixin as a property on the global object (`window`, in the browser). This needs to be injected with underscore before use, as shown above.
-
-Files with 'dev' are for development mode: they are not minified, and include error checking.
-
-Since it's not a real JS library readme if there's not a mention of its footprint, **Remixin is 762 bytes gzipped**.
+([Underscore.js][underscore] is a dependency and needs to be included first.)
 
 ## Usage
 
@@ -97,10 +72,7 @@ All other keys are copied onto the target object unless that key already exists.
 then it should be defined in the `override` block. If a default implementation is desired, then it should be defined in
 the `defaults` block.
 
-If using the development build of Remixin, incorrect use of these modifiers will throw an error. For example, if a
-field declared in `requires` is not found, or trying to apply a `before` on a non-function. The production build skips
-these checks altogether, either failing silently or creating unwanted behaviour when used. For this reason, you should
-definitely use the development version while working.
+Incorrect use of these modifiers will throw an error if `Mixin.debug` is set to `true`. For example, if a field declared in `requires` is not found, or if a `before` is applied on a non-function. By default, `Mixin.debug` is `false`.
 
 ### Custom `applyTo`
 
@@ -177,7 +149,7 @@ megaMixin = new Mixin(mixin1, mixin2, mixin3, mixin4, {});
 
 ## Development
 
-To create the builds:
+To build the source:
 
 ```shell
 make
@@ -204,3 +176,4 @@ make coverage
 [joose]: http://joose.it/
 [slides]: https://speakerdeck.com/anguscroll/how-we-learned-to-stop-worrying-and-love-javascript
 [soundcloud]: https://soundcloud.com
+[underscore]: https://underscorejs.org
