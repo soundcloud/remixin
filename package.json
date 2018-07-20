@@ -8,6 +8,9 @@
     "aspect-oriented",
     "oop"
   ],
+  "scripts": {
+    "prepublish": "make"
+  },
   "repository": "soundcloud/remixin",
   "author": "SoundCloud",
   "license": "MIT",
