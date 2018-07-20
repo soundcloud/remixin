@@ -42,7 +42,7 @@ _.extend(Mixin.prototype, {
   before: function (obj, methods) {
     // apply the befores
     _.each(methods, function (modifierFn, prop) {
-      if (__DEBUG__) {
+      if (Mixin.debug) {
         __assertFunction__(obj, prop);
       }
       var origFn = obj[prop];
@@ -58,7 +58,7 @@ _.extend(Mixin.prototype, {
   after: function (obj, methods) {
     // apply the afters
     _.each(methods, function (modifierFn, prop) {
-      if (__DEBUG__) {
+      if (Mixin.debug) {
         __assertFunction__(obj, prop);
       }
       var origFn = obj[prop];
@@ -75,7 +75,7 @@ _.extend(Mixin.prototype, {
   around: function (obj, methods) {
     // apply the arounds
     _.each(methods, function (modifierFn, prop) {
-      if (__DEBUG__) {
+      if (Mixin.debug) {
         __assertFunction__(obj, prop);
       }
       var origFn = obj[prop];
@@ -112,7 +112,7 @@ _.extend(Mixin.prototype, {
       if (value == null) {
         return;
       }
-      if (__DEBUG__) {
+      if (Mixin.debug) {
         __assertValidMergeValue__(value);
       }
       var existingVal = obj[prop];
@@ -125,7 +125,7 @@ _.extend(Mixin.prototype, {
   extend: function (obj, properties) {
     // apply the regular properties
     var toCopy = _.omit(properties, SPECIAL_KEYS);
-    if (__DEBUG__) {
+    if (Mixin.debug) {
       Object.keys(toCopy).forEach(function (prop) {
         if (obj[prop] != null) {
           throw new Error('Mixin overrides existing property "' + prop + '"');
@@ -135,7 +135,9 @@ _.extend(Mixin.prototype, {
     _.extend(obj, toCopy);
   },
 
-  requires: __DEBUG__ ? function (obj, requires) {
+  requires: function (obj, requires) {
+    if (!Mixin.debug) return;
+
     // check the requires -- this is only checked in debug mode.
     if (requires) {
       if (!_.isArray(requires)) {
@@ -151,9 +153,11 @@ _.extend(Mixin.prototype, {
         throw new Error('Object is missing required properties: "' + errors.join('", "') + '"');
       }
     }
-  } : _.noop,
+  },
 
-  requirePrototype: __DEBUG__ ? function (obj, requirePrototype) {
+  requirePrototype: function (obj, requirePrototype) {
+    if (!Mixin.debug) return;
+
     // check the required prototypes -- this is only checked in debug mode.
     if (requirePrototype) {
       if (!_.isObject(requirePrototype)) {
@@ -163,7 +167,7 @@ _.extend(Mixin.prototype, {
         throw new Error('Object does not inherit from required prototype');
       }
     }
-  } : _.noop
+  }
 });
 
 function CurriedMixin(mixin, options) {

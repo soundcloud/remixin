@@ -31,7 +31,6 @@
   "globals": {
     "require": false,
     "__dirname": false,
-    "module": true,
-    "__DEBUG__": true
+    "module": true
   }
 }
