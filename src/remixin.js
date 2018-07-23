@@ -45,8 +45,8 @@ export class Mixin {
       }
       const origFn = obj[prop];
       obj[prop] = function (...args) {
-        exec(modifierFn, this, args);
-        return exec(origFn, this, args);
+        modifierFn.apply(this, args);
+        return origFn.apply(this, args);
       };
     });
   }
@@ -59,8 +59,8 @@ export class Mixin {
       }
       const origFn = obj[prop];
       obj[prop] = function (...args) {
-        const ret = exec(origFn, this, args);
-        exec(modifierFn, this, args);
+        const ret = origFn.apply(this, args);
+        modifierFn.apply(this, args);
         return ret;
       };
     });
@@ -75,7 +75,7 @@ export class Mixin {
       const origFn = obj[prop];
       obj[prop] = function () {
         const args = [origFn.bind(this), ...arguments];
-        return exec(modifierFn, this, args);
+        return modifierFn.apply(this, args);
       };
     });
   }
@@ -160,17 +160,6 @@ class CurriedMixin extends Mixin {
   constructor(mixin, options) {
     super(mixin, options);
     this.applyTo = (obj) => { mixin.applyTo(obj, options) };
-  }
-}
-
-function exec(fn, context, args) {
-  switch (args.length) {
-    case 0:  return fn.call(context);
-    case 1:  return fn.call(context, args[0]);
-    case 2:  return fn.call(context, args[0], args[1]);
-    case 3:  return fn.call(context, args[0], args[1], args[2]);
-    case 4:  return fn.call(context, args[0], args[1], args[2], args[3]);
-    default: return fn.apply(context, args);
   }
 }
 
