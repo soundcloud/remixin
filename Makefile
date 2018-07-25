@@ -1,6 +1,6 @@
 uglify := ./node_modules/.bin/uglifyjs
 mocha := ./node_modules/.bin/mocha
-istanbul := ./node_modules/.bin/istanbul
+nyc := ./node_modules/.bin/nyc
 
 devOpts := \
 	--compress sequences=false,warnings=false \
@@ -21,30 +21,17 @@ outputFiles := dist/remixin-cjs.js dist/remixin-dev-cjs.js dist/remixin-global.j
 all: $(outputFiles)
 
 clean:
-	rm -rf dist coverage-files html-report
+	rm -rf dist coverage .nyc_output
 
 test: dist/remixin-dev-cjs.js node_modules
-	$(mocha) test.js
+	$(nyc) --reporter=text --reporter=html $(mocha)
 
-coverage: html-report/index.html
-	@echo Open html-report/index.html file in your browser
-
-####
-
-html-report/index.html: coverage-files/dist/remixin-dev-cjs.js coverage-files/test.js
-	$(mocha) --reporter mocha-istanbul coverage-files/test.js
-
-coverage-files/%: %
-	mkdir -p $(@D)
-	$(istanbul) instrument --output $@ --no-compact $<
-
-####
+coverage: test
+	open $@/index.html
 
 node_modules: package.json
 	npm install
 	touch $@
-
-#####
 
 dist/remixin-dev-cjs.js: src/remixin.js node_modules
 	mkdir -p $(@D)
