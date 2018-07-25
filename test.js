@@ -1,44 +1,44 @@
 import expect from 'expect.js';
+import _ from 'underscore';
 import { Mixin } from './src/remixin';
 
 Mixin.debug = true;
 
-describe('Remixin', function () {
-  it('can be applied to objects', function () {
-    var obj, hasBaz, fn = function () {};
-    obj = {
+describe('Remixin', () => {
+  it('can be applied to objects', () => {
+    const obj = {
       foo: 'FOO'
     };
 
-    hasBaz = new Mixin({
-      bar: fn,
+    const hasBaz = new Mixin({
+      bar: _.noop,
       baz: 'BAZ'
     });
 
     hasBaz.applyTo(obj);
 
     expect(obj.baz).to.be('BAZ');  // The mixin should have added the new property
-    expect(obj.bar).to.be(fn);     // The mixin should have added the new method
+    expect(obj.bar).to.be(_.noop); // The mixin should have added the new method
     expect(obj.foo).to.be('FOO');  // The mixin should not have modified the old property
   });
 
-  it('are able to define before/after method modifiers', function () {
-    var obj, mixin, fooOrder = [];
+  it('are able to define before/after method modifiers', () => {
+    const fooOrder = [];
 
-    obj = {
-      foo: function () {
+    const obj = {
+      foo() {
         fooOrder.push('b');
       }
     };
 
-    mixin = new Mixin({
+    const mixin = new Mixin({
       before: {
-        foo: function () {
+        foo() {
           fooOrder.push('a');
         }
       },
       after: {
-        foo: function () {
+        foo() {
           fooOrder.push('c');
         }
       }
@@ -51,26 +51,26 @@ describe('Remixin', function () {
     expect(fooOrder).to.eql(['a', 'b', 'c']);
   });
 
-  it('does not allow befores/afters to modify arguments or return values', function () {
-    var obj, mixin, fooOrder = [], ret;
+  it('does not allow befores/afters to modify arguments or return values', () => {
+    const fooOrder = [];
 
-    obj = {
-      foo: function (arg) {
-        fooOrder.push('b' + arg);
+    const obj = {
+      foo(arg) {
+        fooOrder.push(`b${arg}`);
         return arg;
       }
     };
 
-    mixin = new Mixin({
+    const mixin = new Mixin({
       before: {
-        foo: function (arg) {
-          fooOrder.push('a' + arg);
+        foo(arg) {
+          fooOrder.push(`a${arg}`);
           return 'before';
         }
       },
       after: {
-        foo: function (arg) {
-          fooOrder.push('c' + arg);
+        foo(arg) {
+          fooOrder.push(`c${arg}`);
           return 'after';
         }
       }
@@ -78,30 +78,28 @@ describe('Remixin', function () {
 
     mixin.applyTo(obj);
 
-    ret = obj.foo(1);
+    const ret = obj.foo(1);
 
     expect(fooOrder).to.eql(['a1', 'b1', 'c1']);  // The argument should have been passed to each modifier
     expect(ret).to.be(1);                         // The return values of the modifiers should have been ignored
   });
 
-  it('can apply functions around other functions', function () {
-    var obj, mixin, receivedArg, context, fooFn, ret;
+  it('can apply functions around other functions', () => {
+    let receivedArg, context;
 
-    fooFn = function (arg) {
-      context = this;     // save the context
-      receivedArg = arg;  // save the argument passed in
-      return arg + 1;
+    const obj = {
+      foo(arg) {
+        context = this;     // save the context
+        receivedArg = arg;  // save the argument passed in
+        return arg + 1;
+      }
     };
 
-    obj = {
-      foo: fooFn
-    };
-
-    mixin = new Mixin({
+    const mixin = new Mixin({
       around: {
-        foo: function (fn, arg) {
+        foo(fn, arg) {
           expect(fn).to.be.a('function'); // The first argument should be the original function
-          var fooRet = fn(arg + 1); // note that no context is being passed to the fn
+          const fooRet = fn(arg + 1); // note that no context is being passed to the fn
           return fooRet + 1;
         }
       }
@@ -109,36 +107,37 @@ describe('Remixin', function () {
 
     mixin.applyTo(obj);
 
-    ret = obj.foo(1);
+    const ret = obj.foo(1);
 
     expect(context).to.be(obj);   // The object function should have received the correct context
     expect(receivedArg).to.be(2); // The function should have received a modified argument
     expect(ret).to.be(4);         // The modifier should have modified the return value
   });
 
-  it('Arounds are applied after befores/afters', function () {
-    var obj, mixin, fooOrder = [];
-    obj = {
-      foo: function () {
+  it('Arounds are applied after befores/afters', () => {
+    const fooOrder = [];
+
+    const obj = {
+      foo() {
         fooOrder.push('main');
       }
     };
 
-    mixin = new Mixin({
+    const mixin = new Mixin({
       around: {
-        foo: function (fn) {
+        foo(fn) {
           fooOrder.push('arounda');
           fn();
           fooOrder.push('aroundb');
         }
       },
       before: {
-        foo: function () {
+        foo() {
           fooOrder.push('before');
         }
       },
       after: {
-        foo: function () {
+        foo() {
           fooOrder.push('after');
         }
       }
@@ -152,47 +151,48 @@ describe('Remixin', function () {
     expect(fooOrder).to.eql(['arounda', 'before', 'main', 'after', 'aroundb']);
   });
 
-  it('can apply multiple modifiers', function () {
-    var obj, mixin1, mixin2, fooOrder = [];
+  it('can apply multiple modifiers', () => {
+    const fooOrder = [];
 
-    obj = {
-      foo: function () {
+    const obj = {
+      foo() {
         fooOrder.push('main');
       }
     };
 
-    mixin1 = new Mixin({
+    const mixin1 = new Mixin({
       before: {
-        foo: function () {
+        foo() {
           fooOrder.push('before1');
         }
       },
       after: {
-        foo: function () {
+        foo() {
           fooOrder.push('after1');
         }
       },
       around: {
-        foo: function (fn) {
+        foo(fn) {
           fooOrder.push('around1a');
           fn();
           fooOrder.push('around1b');
         }
       }
     });
-    mixin2 = new Mixin({
+
+    const mixin2 = new Mixin({
       before: {
-        foo: function () {
+        foo() {
           fooOrder.push('before2');
         }
       },
       after: {
-        foo: function () {
+        foo() {
           fooOrder.push('after2');
         }
       },
       around: {
-        foo: function (fn) {
+        foo(fn) {
           fooOrder.push('around2a');
           fn();
           fooOrder.push('around2b');
@@ -210,22 +210,16 @@ describe('Remixin', function () {
     );
   });
 
-  it('can override properties if explicitly stated', function () {
-    var obj, mixin;
-
-    obj = {
+  it('can override properties if explicitly stated', () => {
+    const obj = {
       someProp: 'original',
-      someFunc: function () {
-        return 'original';
-      }
+      someFunc: () => 'original'
     };
 
-    mixin = new Mixin({
+    const mixin = new Mixin({
       override: {
         someProp: 'modified',
-        someFunc: function () {
-          return 'modified';
-        }
+        someFunc: () => 'modified'
       }
     });
 
@@ -235,17 +229,15 @@ describe('Remixin', function () {
     expect(obj.someFunc()).to.be('modified'); // The method should have been overridden
   });
 
-  it('can merge objects', function () {
-    var mixin, obj;
-
-    obj = {
+  it('can merge objects', () => {
+    const obj = {
       defaults: {},
       events: {
         'click': 'onClick'
       }
     };
 
-    mixin = new Mixin({
+    const mixin = new Mixin({
       merge: {
         defaults: {
           'title': 'foo'
@@ -271,10 +263,8 @@ describe('Remixin', function () {
     expect(obj.element2selector).to.eql({ 'link': 'a' });
   });
 
-  it('can merge arrays', function () {
-    var mixin, obj;
-
-    obj = {
+  it('can merge arrays', () => {
+    const obj = {
       css: ['button.css'],
       requiredAttributes: [],
       observedAttributes: {
@@ -282,7 +272,8 @@ describe('Remixin', function () {
         playlist: ['tracks']
       }
     };
-    mixin = new Mixin({
+
+    const mixin = new Mixin({
       merge: {
         css: ['colors.css', 'button.css'],
         requiredAttributes: ['purchase_url'],
@@ -308,12 +299,11 @@ describe('Remixin', function () {
     expect(obj.myList).to.eql(['foo', 'bar']);
   });
 
-  it('will lift values into an array for merge', function () {
-    var obj, mixin;
-    obj = {
+  it('will lift values into an array for merge', () => {
+    const obj = {
       css: 'buttons.css'
     };
-    mixin = new Mixin({
+    const mixin = new Mixin({
       merge: {
         css: ['colors.css']
       }
@@ -322,9 +312,8 @@ describe('Remixin', function () {
     expect(obj.css).to.eql(['buttons.css', 'colors.css']);
   });
 
-  it('will merge strings as a token list', function () {
-    var mixin, obj;
-    mixin = new Mixin({
+  it('will merge strings as a token list', () => {
+    const mixin = new Mixin({
       merge: {
         'className': 'sc-button',
         'foo': 'bar baz',
@@ -332,7 +321,7 @@ describe('Remixin', function () {
       }
     });
 
-    obj = {
+    const obj = {
       'className': 'myView',
       'foo': 'baz'
     };
@@ -349,32 +338,32 @@ describe('Remixin', function () {
     expect(obj.quux).to.be('fuzbar');
   });
 
-  it('ignore nullish values in merge', function () {
-    var mixin, obj;
-
-    mixin = new Mixin({
+  it('ignore nullish values in merge', () => {
+    const mixin = new Mixin({
       merge: {
         nullVal: null,
         undefVal: undefined
       }
     });
-    obj = {};
+    const obj = {};
 
     mixin.applyTo(obj);
     expect(obj).not.to.have.property('nullVal');
     expect(obj).not.to.have.property('undefVal');
   });
 
-  it('won\'t affect prototype objects when merging', function () {
+  it(`won't affect prototype objects when merging`, () => {
     // this checks that the target object is not mutated when using merge; rather, a new object is returned
-    var mixin, obj, obj2;
 
-    function MyClass() {}
-    MyClass.prototype.foo = { a: 1 };
-    MyClass.prototype.bar = [ 1 ];
+    class Cls {
+      constructor() {
+        this.foo = { a: 1 };
+        this.bar = [ 1 ];
+      }
+    }
 
-    obj = new MyClass();
-    mixin = new Mixin({
+    const obj = new Cls();
+    const mixin = new Mixin({
       merge: {
         foo: { a: 2, b: 2 },
         bar: [ 2 ]
@@ -385,16 +374,18 @@ describe('Remixin', function () {
     expect(obj.foo).to.eql({ a: 1, b: 2});
     expect(obj.bar).to.eql([1, 2]);
 
-    obj2 = new MyClass();
+    const obj2 = new Cls();
     expect(obj2.foo).to.eql({ a: 1 });
     expect(obj2.bar).to.eql([1]);
   });
 
-  it('Custom applyTo exposes its interface', function () {
-    var mixin, obj = {}, ranExpectations = false;
+  it('Custom applyTo exposes its interface', () => {
+    let ranExpectations = false;
 
-    mixin = new Mixin({
-      applyTo: function (o) {
+    const obj = {};
+
+    const mixin = new Mixin({
+      applyTo(o) {
         expect(o).to.be(obj); // The object should have been passed through
         expect(this.before)  .to.be.a('function');
         expect(this.after)   .to.be.a('function');
@@ -407,27 +398,28 @@ describe('Remixin', function () {
         ranExpectations = true;
       }
     });
+
     mixin.applyTo(obj);
     expect(ranExpectations).to.be(true);
   });
 
-  it('Custom applyTo can be mixed with shortcut methods', function () {
-    var mixin, obj, afterFoo = false;
+  it('Custom applyTo can be mixed with shortcut methods', () => {
+    let afterFoo = false;
 
-    obj = {
-      foo: function () {}
+    const obj = {
+      foo() {}
     };
 
-    mixin = new Mixin({
+    const mixin = new Mixin({
       after: {
-        foo: function () {
+        foo() {
           afterFoo = true;
         }
       },
-      applyTo: function (o, options) {
+      applyTo(o, options) {
         this.extend(o, {
           size: 1,
-          zoom: function () {
+          zoom() {
             this.size *= options.zoomLevel;
           }
         });
@@ -447,19 +439,17 @@ describe('Remixin', function () {
     expect(afterFoo).to.be(true); // The after should have been applied
   });
 
-  it('can be curried with options for shorthand syntax', function () {
-    var mix, curriedMixin, obj;
-
-    mix = new Mixin({
-      applyTo: function (target, options) {
+  it('can be curried with options for shorthand syntax', () => {
+    const mix = new Mixin({
+      applyTo(target, options) {
         target.foo = options.foo;
       }
     });
 
-    curriedMixin = mix.withOptions({ foo: 'bar' });
+    const curriedMixin = mix.withOptions({ foo: 'bar' });
     expect(curriedMixin).to.be.a(Mixin); // The curried mixin is also an instance of Mixin class
 
-    obj = {};
+    const obj = {};
     curriedMixin.applyTo(obj);
 
     expect(obj.foo).to.be('bar'); // The mixin should have been applied with the curried options
@@ -467,42 +457,39 @@ describe('Remixin', function () {
 
   ///////////////////////////////////////////////////////////////////////////////
 
-  describe('error checking', function () {
-    function applyMixinWithMergeValue(val, obj) {
-      obj = obj || {};
-      return function () {
-        var mixin = new Mixin({
-              merge: {
-                key: val
-              }
-            });
+  describe('error checking', () => {
+    function applyMixinWithMergeValue(val, obj = {}) {
+      return () => {
+        const mixin = new Mixin({
+          merge: {
+            key: val
+          }
+        });
         mixin.applyTo(obj);
       };
     }
 
-    it('enforces applying modifiers only to functions', function () {
-      var mixin, noBefore, noAfter, noAround, noop = function () {};
-
+    it('enforces applying modifiers only to functions', () => {
       // mixin which defines all three modifiers
-      mixin = new Mixin({
-        before: { foo: noop },
-        after : { bar: noop },
-        around: { baz: noop }
+      const mixin = new Mixin({
+        before: { foo() {} },
+        after : { bar() {} },
+        around: { baz() {} }
       });
 
       // three object, each missing one required property
-      noBefore = {
-        bar: noop,
-        baz: noop
+      const noBefore = {
+        bar() {},
+        baz() {}
       };
-      noAfter = {
-        foo: noop,
+      const noAfter = {
+        foo() {},
         bar: 1, // exists, not a function though
-        baz: noop
+        baz() {}
       };
-      noAround = {
-        foo: noop,
-        bar: noop,
+      const noAround = {
+        foo() {},
+        bar() {},
         baz: /abc/
       };
 
@@ -514,13 +501,12 @@ describe('Remixin', function () {
       expect(mixin.applyTo.bind(mixin, noAround)).to.throwError(/Object is missing function property "baz"/);
     });
 
-    it('disallows overriding existing properties', function () {
-      var obj, hasFoo;
-      obj = {
+    it('disallows overriding existing properties', () => {
+      const obj = {
         foo: 'FOO'
       };
 
-      hasFoo = new Mixin({
+      const hasFoo = new Mixin({
         foo: 'fuuuuuu'
       });
 
@@ -528,31 +514,29 @@ describe('Remixin', function () {
       expect(hasFoo.applyTo.bind(hasFoo, obj)).to.throwError(/Mixin overrides existing property "foo"/);
     });
 
-    it('disallows overriding existing properties defined in the prototype', function () {
+    it('disallows overriding existing properties defined in the prototype', () => {
+      class Cls {
+        constructor() {
+          this.foo = 'FOO';
+        }
+      };
 
-      var Cls, obj, mixin;
-      Cls = function () {};
-      Cls.prototype.foo = 'FOO';
+      const obj = new Cls();
 
-      obj = new Cls();
-
-      mixin = new Mixin({
+      const mixin = new Mixin({
         foo: 'fuuuuuuuu'
       });
 
       // Mixins should not override properties even of the prototype
       expect(mixin.applyTo.bind(mixin, obj)).to.throwError(/Mixin overrides existing property "foo"/);
-
     });
 
-    it('enforces required properties', function () {
-      var obj, mixin;
-
-      obj = {
+    it('enforces required properties', () => {
+      const obj = {
         foo: 1
       };
 
-      mixin = new Mixin({
+      const mixin = new Mixin({
         requires: ['foo', 'bar']
       });
 
@@ -560,12 +544,10 @@ describe('Remixin', function () {
       expect(mixin.applyTo.bind(mixin, obj)).to.throwError(/Object is missing required properties: "bar"/);
     });
 
-    it('warns about all missing required properties', function () {
-      var obj, mixin;
+    it('warns about all missing required properties', () => {
+      const obj = {};
 
-      obj = {};
-
-      mixin = new Mixin({
+      const mixin = new Mixin({
         requires: ['foo', 'bar']
       });
 
@@ -573,11 +555,10 @@ describe('Remixin', function () {
       expect(mixin.applyTo.bind(mixin, obj)).to.throwError(/Object is missing required properties: "foo", "bar"/);
     });
 
-    it('checks that requires must be an array', function () {
-      var obj, mixin;
+    it('checks that requires must be an array', () => {
+      const obj = {};
 
-      obj = {};
-      mixin = new Mixin({
+      const mixin = new Mixin({
         requires: 'foo'
       });
 
@@ -585,27 +566,23 @@ describe('Remixin', function () {
       expect(mixin.applyTo.bind(mixin, obj)).to.throwError(/requires should be an array of required property names/);
     });
 
-    it('will allow for properties defined on the prototype', function () {
-      var obj, mixin;
-      obj = {};
-      mixin = new Mixin({
+    it('will allow for properties defined on the prototype', () => {
+      const obj = {};
+
+      const mixin = new Mixin({
         requires: ['toString']
       });
 
       expect(mixin.applyTo.bind(mixin, obj)).not.to.throwError();
     });
 
-    it('can enforce a required prototype', function () {
-      var Animal = function () {},
-          Dog    = function () {},
-          Beagle = function () {},
-          Car    = function () {},
-          Life;
+    it('can enforce a required prototype', () => {
+      class Car {};
+      class Animal {};
+      class Dog extends Animal {};
+      class Beagle extends Animal {};
 
-      Dog.prototype = Object.create(Animal.prototype);
-      Beagle.prototype = Object.create(Dog.prototype);
-
-      Life = new Mixin({
+      const Life = new Mixin({
         requirePrototype: Animal.prototype
       });
 
@@ -622,58 +599,58 @@ describe('Remixin', function () {
       expect(Life.applyTo.bind(Life, Beagle.prototype)).to.not.throwError();
     });
 
-    it('enforces that requirePrototype be an object', function () {
-      expect(function () {
-        var myMixin = new Mixin({
+    it('enforces that requirePrototype be an object', () => {
+      expect(() => {
+        const myMixin = new Mixin({
           requirePrototype: 'abc'
         });
         myMixin.applyTo({});
       }).to.throwError(/requirePrototype should be an object/);
     });
 
-    it('will reject non-array and non-object properties from `merge`', function () {
+    it('will reject non-array and non-object properties from `merge`', () => {
       expect(applyMixinWithMergeValue(1)).to.throwError(/Unsupported data type for merge/);
       expect(applyMixinWithMergeValue(/abc/)).to.throwError(/Unsupported data type for merge/);
       expect(applyMixinWithMergeValue(new Date())).to.throwError(/Unsupported data type for merge/);
-      expect(applyMixinWithMergeValue(function () {})).to.throwError(/Unsupported data type for merge/);
+      expect(applyMixinWithMergeValue(_.noop)).to.throwError(/Unsupported data type for merge/);
       expect(applyMixinWithMergeValue(false)).to.throwError(/Unsupported data type for merge/);
       expect(applyMixinWithMergeValue(null)).to.not.throwError();
       expect(applyMixinWithMergeValue(undefined)).to.not.throwError();
     });
   });
 
-  describe('when combining mixins', function () {
-    it('can be combine two mixins', function () {
-      var M1, M2, object;
-
-      M1 = new Mixin({
+  describe('when combining mixins', () => {
+    it('can be combine two mixins', () => {
+      const M1 = new Mixin({
         propertyA: 'a'
       });
-      M2 = new Mixin(M1, {
+
+      const M2 = new Mixin(M1, {
         propertyB: 'b'
       });
 
-      object = {};
+      const obj = {};
 
-      M2.applyTo(object);
+      M2.applyTo(obj);
 
-      expect(object).to.eql({ propertyA: 'a', propertyB: 'b' });
+      expect(obj).to.eql({ propertyA: 'a', propertyB: 'b' });
     });
 
-    it('applies around, before, after modifiers to the target object', function () {
-      var M1, M2, object, output = [];
+    it('applies around, before, after modifiers to the target object', () => {
+      const output = [];
 
-      M1 = new Mixin(createMixinConfig('m1', 'foo', output));
-      M2 = new Mixin(M1, createMixinConfig('m2', 'foo', output));
+      const M1 = new Mixin(createMixinConfig('m1', 'foo', output));
 
-      object = {
-        foo: function (arg) {
-          output.push('obj-foo ' + arg);
+      const M2 = new Mixin(M1, createMixinConfig('m2', 'foo', output));
+
+      const obj = {
+        foo(arg) {
+          output.push(`obj-foo ${arg}`);
         }
       };
 
-      M2.applyTo(object);
-      object.foo('bar');
+      M2.applyTo(obj);
+      obj.foo('bar');
       expect(output).to.eql([
         'm2-around-foo-before bar',
         'm2-before-foo bar',
@@ -687,17 +664,17 @@ describe('Remixin', function () {
       ]);
     });
 
-    it('copies properties prior to executing modifiers', function () {
-      var M1, M2, object = {}, output = [];
-
-      M1 = new Mixin(createMixinConfig('m1', 'foo', output));
-      M2 = new Mixin(M1, createMixinConfig('m2', 'foo', output));
-      M2.properties.foo = function (arg) {
-        output.push('m2-foo ' + arg);
+    it('copies properties prior to executing modifiers', () => {
+      let output = [];
+      let obj = {};
+      let M1 = new Mixin(createMixinConfig('m1', 'foo', output));
+      let M2 = new Mixin(M1, createMixinConfig('m2', 'foo', output));
+      M2.properties.foo = (arg) => {
+        output.push(`m2-foo ${arg}`);
       };
 
-      M2.applyTo(object);
-      object.foo('bar');
+      M2.applyTo(obj);
+      obj.foo('bar');
       expect(output).to.eql([
         'm2-around-foo-before bar',
         'm2-before-foo bar',
@@ -711,15 +688,15 @@ describe('Remixin', function () {
       ]);
 
       output = [];
-      object = {};
+      obj = {};
       M1 = new Mixin(createMixinConfig('m1', 'foo', output));
       M2 = new Mixin(M1, createMixinConfig('m2', 'foo', output));
-      M1.properties.foo = function (arg) {
-        output.push('m1-foo ' + arg);
+      M1.properties.foo = (arg) => {
+        output.push(`m1-foo ${arg}`);
       };
 
-      M2.applyTo(object);
-      object.foo('bar');
+      M2.applyTo(obj);
+      obj.foo('bar');
       expect(output).to.eql([
         'm2-around-foo-before bar',
         'm2-before-foo bar',
@@ -733,10 +710,8 @@ describe('Remixin', function () {
       ]);
     });
 
-    it('applies defaults and override modifiers to the target object', function () {
-      var M1, M2, object;
-
-      M1 = new Mixin({
+    it('applies defaults and override modifiers to the target object', () => {
+      const M1 = new Mixin({
         defaults: {
           foo: 'm1-default'
         },
@@ -745,7 +720,7 @@ describe('Remixin', function () {
         }
       });
 
-      M2 = new Mixin(M1, {
+      const M2 = new Mixin(M1, {
         defaults: {
           foo: 'm2-default'
         },
@@ -754,31 +729,33 @@ describe('Remixin', function () {
         }
       });
 
-      object = {};
+      const obj = {};
 
-      M2.applyTo(object);
+      M2.applyTo(obj);
 
-      expect(object.foo).to.be('m2-default');
-      expect(object.bar).to.be('m2-override');
+      expect(obj.foo).to.be('m2-default');
+      expect(obj.bar).to.be('m2-override');
     });
 
-    it('will apply defaults to objects whose prototype defines that property', function () {
-      var mixin, obj;
+    it('will apply defaults to objects whose prototype defines that property', () => {
+      class Cls {
+        foo() {
+          return 'super foo';
+        }
 
-      function Cls() {}
-      Cls.prototype = {
-        foo: constant('super foo'),
-        bar: constant('super bar')
+        bar() {
+          return 'super bar';
+        }
       };
 
-      obj = new Cls();
-      obj.foo = constant('sub foo');
+      const obj = new Cls();
+      obj.foo = () => 'sub foo';
 
-      mixin = new Mixin({
+      const mixin = new Mixin({
         defaults: {
-          foo: constant('mixin foo'),
-          bar: constant('mixin bar'),
-          baz: constant('mixin baz')
+          foo: () => 'mixin foo',
+          bar: () => 'mixin bar',
+          baz: () => 'mixin baz'
         }
       });
 
@@ -789,123 +766,115 @@ describe('Remixin', function () {
       expect(obj.baz()).to.be('mixin baz'); // baz was not defined at all, so it should have been applied
     });
 
-    it('applies requires modifiers to the target object', function () {
-      var M1, M2, object;
-
-      M1 = new Mixin({});
-      M2 = new Mixin(M1, {
+    it('applies requires modifiers to the target object', () => {
+      const M1 = new Mixin({});
+      const M2 = new Mixin(M1, {
         requires: ['bazM2']
       });
 
-      object = {};
+      const obj = {};
 
-      expect(M2.applyTo.bind(M2, object)).to.throwError(/Object is missing required properties: "bazM2"/);
+      expect(M2.applyTo.bind(M2, obj)).to.throwError(/Object is missing required properties: "bazM2"/);
 
       M1.properties.requires = ['bazM1'];
 
-      expect(M2.applyTo.bind(M2, object)).to.throwError(/Object is missing required properties: "bazM1"/);
+      expect(M2.applyTo.bind(M2, obj)).to.throwError(/Object is missing required properties: "bazM1"/);
     });
 
-    it('allows required properties can be defined in other mixins', function () {
-      var M1, M2, object;
-
-      M1 = new Mixin({
-        foo: function () {}
+    it('allows required properties can be defined in other mixins', () => {
+      let M1 = new Mixin({
+        foo() {}
       });
 
-      M2 = new Mixin(M1, {
+      let M2 = new Mixin(M1, {
         requires: ['foo']
       });
 
-      object = {};
-      expect(M2.applyTo.bind(M2, object)).not.to.throwError();
+      let obj = {};
+      expect(M2.applyTo.bind(M2, obj)).not.to.throwError();
 
       M1 = new Mixin({
         requires: ['foo']
       });
 
       M2 = new Mixin(M1, {
-        foo: function () {}
+        foo() {}
       });
 
-      object = {};
-      expect(M2.applyTo.bind(M2, object)).not.to.throwError();
+      obj = {};
+      expect(M2.applyTo.bind(M2, obj)).not.to.throwError();
     });
 
-    it('will take the last mixin\'s override instead of the others', function () {
-      var M1, M2, object, output = [];
+    it('will take the last mixin\'s override instead of the others', () => {
+      const output = [];
 
-      M1 = new Mixin({
+      const M1 = new Mixin({
         override: {
-          foo: function (arg) {
-            output.push('m1 ' + arg);
+          foo(arg) {
+            output.push(`m1 ${arg}`);
           }
         }
       });
 
-      M2 = new Mixin(M1, {
+      const M2 = new Mixin(M1, {
         override: {
-          foo: function (arg) {
-            output.push('m2 ' + arg);
+          foo(arg) {
+            output.push(`m2 ${arg}`);
           }
         }
       });
 
-      object = {
-        foo: function (arg) {
-          output.push('obj ' + arg);
+      const obj = {
+        foo(arg) {
+          output.push(`obj ${arg}`);
         }
       };
 
-      M2.applyTo(object);
+      M2.applyTo(obj);
 
-      object.foo('bar');
+      obj.foo('bar');
 
       expect(output).to.eql(['m2 bar']);
     });
 
-    it('can combine already-combined mixins', function () {
-      var M1, M2, M3, object;
-
-      M1 = new Mixin({
+    it('can combine already-combined mixins', () => {
+      const M1 = new Mixin({
         propertyA: 'a'
       });
-      M2 = new Mixin(M1, {
+      const M2 = new Mixin(M1, {
         propertyB: 'b'
       });
-      M3 = new Mixin(M2, {
+      const M3 = new Mixin(M2, {
         propertyC: 'c'
       });
 
-      object = {};
+      const obj = {};
 
-      M3.applyTo(object);
+      M3.applyTo(obj);
 
-      expect(object.propertyA).to.be('a');
-      expect(object.propertyB).to.be('b');
-      expect(object.propertyC).to.be('c');
+      expect(obj.propertyA).to.be('a');
+      expect(obj.propertyB).to.be('b');
+      expect(obj.propertyC).to.be('c');
     });
 
-    it('can combine multiple mixins', function () {
-      var M1, M2, M3, object;
-
-      M1 = new Mixin({
+    it('can combine multiple mixins', () => {
+      const M1 = new Mixin({
         propertyA: 'a'
       });
-      M2 = new Mixin({
+      const M2 = new Mixin({
         propertyB: 'b'
       });
-      M3 = new Mixin(M1, M2, {
+      const M3 = new Mixin(M1, M2, {
         propertyC: 'c'
       });
 
-      object = {};
+      const obj = {};
 
-      M3.applyTo(object);
+      M3.applyTo(obj);
 
-      expect(object.propertyA).to.be('a');
-      expect(object.propertyB).to.be('b');
-      expect(object.propertyC).to.be('c');
+      expect(obj.propertyA).to.be('a');
+      expect(obj.propertyB).to.be('b');
+      expect(obj.propertyC).to.be('c');
     });
   });
 });
@@ -916,31 +885,23 @@ describe('Remixin', function () {
  * @param {Array}  output
  */
 function createMixinConfig(mixinName, functionName, output) {
-  var config = {
-    before : {},
-    after  : {},
-    around : {}
-  };
-
-  config.before[functionName] = function (arg) {
-    output.push(mixinName + '-before-foo ' + arg);
-  };
-
-  config.after[functionName] = function (arg) {
-    output.push(mixinName + '-after-foo ' + arg);
-  };
-
-  config.around[functionName] = function (fn, arg) {
-    output.push(mixinName + '-around-foo-before ' + arg);
-    fn(arg);
-    output.push(mixinName + '-around-foo-after ' + arg);
-  };
-
-  return config;
-}
-
-function constant(val) {
-  return function () {
-    return val;
+  return {
+    before: {
+      [functionName](arg) {
+        output.push(`${mixinName}-before-foo ${arg}`);
+      }
+    },
+    after: {
+      [functionName](arg) {
+        output.push(`${mixinName}-after-foo ${arg}`);
+      }
+    },
+    around: {
+      [functionName](fn, arg) {
+        output.push(`${mixinName}-around-foo-before ${arg}`);
+        fn(arg);
+        output.push(`${mixinName}-around-foo-after ${arg}`);
+      }
+    }
   };
 }
