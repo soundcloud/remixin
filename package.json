@@ -2,19 +2,13 @@
   "name": "remixin",
   "version": "1.0.3",
   "description": "Aspect-oriented, mixin library",
-  "main": "index.js",
+  "main": "dist/remixin-cjs",
   "keywords": [
     "mixin",
     "aspect-oriented",
     "oop"
   ],
-  "scripts": {
-    "test-server": "static --cache 0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/soundcloud/remixin.git"
-  },
+  "repository": "soundcloud/remixin",
   "author": "SoundCloud",
   "license": "MIT",
   "dependencies": {
@@ -23,10 +17,8 @@
   "devDependencies": {
     "eslint": "0.11.0",
     "expect.js": "0.3.1",
-    "istanbul": "0.3.5",
-    "mocha": "2.1.0",
-    "mocha-istanbul": "0.2.0",
-    "node-static": "0.7.6",
+    "mocha": "5.2.0",
+    "nyc": "12.0.2",
     "uglify-js": "2.4.16"
   }
 }
