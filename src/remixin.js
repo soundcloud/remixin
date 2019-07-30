@@ -5,18 +5,16 @@
  */
 import _ from 'underscore';
 
-var SPECIAL_KEYS = ['before', 'after', 'around', 'requires', 'override', 'defaults', 'applyTo', 'requirePrototype', 'merge'],
-    whitespace = /\s+/;
+const SPECIAL_KEYS = ['before', 'after', 'around', 'requires', 'override', 'defaults', 'applyTo', 'requirePrototype', 'merge'];
 
-export function Mixin(/* Mixin, Mixin, ...  config */) {
-  this.mixins = _.initial(arguments);
-  this.properties = _.last(arguments);
-}
+export class Mixin {
+  constructor(/* Mixin, Mixin, ...  config */) {
+    this.mixins = _.initial(arguments);
+    this.properties = _.last(arguments);
+  }
 
-_.extend(Mixin.prototype, {
-
-  applyTo: function (obj, options) {
-    var props = this.properties;
+  applyTo(obj, options) {
+    const props = this.properties;
 
     this.defaults(obj, props.defaults);
     this.extend(obj, props);
@@ -26,116 +24,104 @@ _.extend(Mixin.prototype, {
 
     // shortcut for calling all these functions with the properties with corresponding keys
     // this.requires(obj, props.requires);
-    ['requires', 'requirePrototype', 'override', 'before', 'after', 'around'].forEach(function (fnName) {
+    ['requires', 'requirePrototype', 'override', 'before', 'after', 'around'].forEach((fnName) => {
       this[fnName](obj, props[fnName]);
-    }, this);
+    });
 
     if (props.applyTo) {
       props.applyTo.call(this, obj, options);
     }
-  },
+  }
 
-  withOptions: function (options) {
+  withOptions(options) {
     return new CurriedMixin(this, options);
-  },
+  }
 
-  before: function (obj, methods) {
+  before(obj, methods) {
     // apply the befores
-    _.each(methods, function (modifierFn, prop) {
+    _.each(methods, (modifierFn, prop) => {
       if (Mixin.debug) {
         __assertFunction__(obj, prop);
       }
-      var origFn = obj[prop];
-      obj[prop] = function () {
-        var args = new Array(arguments.length);
-        for (var i = 0; i < arguments.length; ++i) args[i] = arguments[i];
-        exec(modifierFn, this, args);
-        return exec(origFn, this, args);
+      const origFn = obj[prop];
+      obj[prop] = function (...args) {
+        modifierFn.apply(this, args);
+        return origFn.apply(this, args);
       };
     });
-  },
+  }
 
-  after: function (obj, methods) {
+  after(obj, methods) {
     // apply the afters
-    _.each(methods, function (modifierFn, prop) {
+    _.each(methods, (modifierFn, prop) => {
       if (Mixin.debug) {
         __assertFunction__(obj, prop);
       }
-      var origFn = obj[prop];
-      obj[prop] = function () {
-        var args = new Array(arguments.length);
-        for (var i = 0; i < arguments.length; ++i) args[i] = arguments[i];
-        var ret = exec(origFn, this, args);
-        exec(modifierFn, this, args);
+      const origFn = obj[prop];
+      obj[prop] = function (...args) {
+        const ret = origFn.apply(this, args);
+        modifierFn.apply(this, args);
         return ret;
       };
     });
-  },
+  }
 
-  around: function (obj, methods) {
+  around(obj, methods) {
     // apply the arounds
-    _.each(methods, function (modifierFn, prop) {
+    _.each(methods, (modifierFn, prop) => {
       if (Mixin.debug) {
         __assertFunction__(obj, prop);
       }
-      var origFn = obj[prop];
-
+      const origFn = obj[prop];
       obj[prop] = function () {
-        var l = arguments.length;
-        var args = new Array(l + 1);
-
-        args[0] = origFn.bind(this);
-
-        for (var i = 0; i < l; ++i) {
-          args[i + 1] = arguments[i];
-        }
-        return exec(modifierFn, this, args);
+        const args = [origFn.bind(this), ...arguments];
+        return modifierFn.apply(this, args);
       };
     });
-  },
+  }
 
-  override: function (obj, properties) {
+  override(obj, properties) {
     // apply the override properties
     _.extend(obj, properties);
-  },
+  }
 
-  defaults: function (obj, properties) {
-    _.each(properties, function (value, prop) {
+  defaults(obj, properties) {
+    _.each(properties, (value, prop) => {
       if (!obj.hasOwnProperty(prop)) {
         obj[prop] = value;
       }
     });
-  },
+  }
 
-  merge: function (obj, properties) {
-    _.each(properties, function (value, prop) {
+  merge(obj, properties) {
+    _.each(properties, (value, prop) => {
       if (value == null) {
         return;
       }
       if (Mixin.debug) {
         __assertValidMergeValue__(value);
       }
-      var existingVal = obj[prop];
+      const existingVal = obj[prop];
       obj[prop] = _.isArray(value)  ? mergeArrays(existingVal, value)
                 : _.isString(value) ? mergeTokenList(existingVal, value)
                                     : mergeObjects(existingVal, value);
     });
-  },
+  }
 
-  extend: function (obj, properties) {
+  extend(obj, properties) {
     // apply the regular properties
-    var toCopy = _.omit(properties, SPECIAL_KEYS);
+    const toCopy = _.omit(properties, SPECIAL_KEYS);
     if (Mixin.debug) {
-      Object.keys(toCopy).forEach(function (prop) {
+      Object.keys(toCopy).forEach((prop) => {
         if (obj[prop] != null) {
-          throw new Error('Mixin overrides existing property "' + prop + '"');
+          throw new Error(`Mixin overrides existing property "${prop}"`);
         }
       });
     }
     _.extend(obj, toCopy);
-  },
+  }
 
-  requires: function (obj, requires) {
+  requires(obj, requires) {
     if (!Mixin.debug) return;
 
     // check the requires -- this is only checked in debug mode.
@@ -144,18 +130,18 @@ _.extend(Mixin.prototype, {
         throw new Error('requires should be an array of required property names');
       }
 
-      var errors = _.compact(requires.map(function (prop) {
+      const errors = _.compact(requires.map((prop) => {
         if (!(prop in obj)) {
           return prop;
         }
       }));
       if (errors.length) {
-        throw new Error('Object is missing required properties: "' + errors.join('", "') + '"');
+        throw new Error(`Object is missing required properties: "${errors.join('", "')}"`);
       }
     }
-  },
+  }
 
-  requirePrototype: function (obj, requirePrototype) {
+  requirePrototype(obj, requirePrototype) {
     if (!Mixin.debug) return;
 
     // check the required prototypes -- this is only checked in debug mode.
@@ -168,23 +154,12 @@ _.extend(Mixin.prototype, {
       }
     }
   }
-});
-
-function CurriedMixin(mixin, options) {
-  this.applyTo = function(obj) {
-    mixin.applyTo(obj, options);
-  };
 }
-CurriedMixin.prototype = Mixin.prototype;
 
-function exec(fn, context, args) {
-  switch (args.length) {
-    case 0:  return fn.call(context);
-    case 1:  return fn.call(context, args[0]);
-    case 2:  return fn.call(context, args[0], args[1]);
-    case 3:  return fn.call(context, args[0], args[1], args[2]);
-    case 4:  return fn.call(context, args[0], args[1], args[2], args[3]);
-    default: return fn.apply(context, args);
+class CurriedMixin extends Mixin {
+  constructor(mixin, options) {
+    super(mixin, options);
+    this.applyTo = (obj) => { mixin.applyTo(obj, options) };
   }
 }
 
@@ -240,7 +215,7 @@ function mergeObjects(existingVal, value) {
  * @return {Array.<String>}
  */
 function tokenize(str) {
-  return _.compact(str.split(whitespace));
+  return _.compact(str.split(/\s+/));
 }
 
 /**
@@ -253,9 +228,9 @@ function lift(value) {
 }
 
 function __assertValidMergeValue__(value) {
-  var isInvalid = (!_.isObject(value) && !_.isString(value)) || ['isRegExp', 'isDate', 'isFunction'].some(function (fnName) {
-    return _[fnName](value);
-  });
+  const isInvalid = (!_.isObject(value) && !_.isString(value)) || ['isRegExp', 'isDate', 'isFunction'].some((fnName) => (
+    _[fnName](value)
+  ));
   if (isInvalid) {
     throw new Error('Unsupported data type for merge');
   }
@@ -263,6 +238,6 @@ function __assertValidMergeValue__(value) {
 
 function __assertFunction__(obj, property) {
   if (!_.isFunction(obj[property])) {
-    throw new Error('Object is missing function property "' + property + '"');
+    throw new Error(`Object is missing function property "${property}"`);
   }
 }

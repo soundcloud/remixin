@@ -15,7 +15,7 @@ npm install remixin
 And then import it:
 
 ```js
-const { Mixin } = require('remixin');
+import { Mixin } from 'remixin';
 ```
 
 Alternatively, download a browser-ready version from the unpkg CDN:
@@ -82,9 +82,9 @@ calling code:
 
 ```js
 zoomable = new Mixin({
- applyTo: function (obj, options) {
+ applyTo(obj, options) {
    this.extend(obj, {
-     zoom: function () {
+     zoom() {
        this.width *= options.zoomRatio;
        this.height *= options.zoomRatio;
      }
@@ -122,16 +122,16 @@ overlay = new Mixin({
       'click .closeButton': 'onCloseClick'
     }
   },
-  show: function () { ... },
-  hide: function () { ... },
-  onCloseClick: function () {
+  show() { ... },
+  hide() { ... },
+  onCloseClick() {
     this.hide();
   }
 });
 
 dropDownMenu = new Mixin(overlay, {
   after: {
-    onCloseClick: function () {
+    onCloseClick() {
       this.parentButton.focus();
     }
   }
