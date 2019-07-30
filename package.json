@@ -15,7 +15,7 @@
   "author": "SoundCloud",
   "license": "MIT",
   "dependencies": {
-    "underscore": "1.8.2"
+    "underscore": "^1.9.1"
   },
   "devDependencies": {
     "@babel/cli": "7.4.4",
