@@ -2,18 +2,21 @@
   "name": "remixin",
   "version": "1.0.3",
   "description": "Aspect-oriented, mixin library",
+  "repository": "soundcloud/remixin",
+  "author": "SoundCloud",
+  "license": "MIT",
   "main": "dist/remixin",
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "mixin",
     "aspect-oriented",
     "oop"
   ],
   "scripts": {
-    "prepublish": "make"
+    "prepublishOnly": "make"
   },
-  "repository": "soundcloud/remixin",
-  "author": "SoundCloud",
-  "license": "MIT",
   "dependencies": {
     "underscore": "^1.9.1"
   },

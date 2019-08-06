@@ -1,7 +1,0 @@
-src/
-test/
-coverage/
-.nyc_output/
-.travis.yml
-.babelrc
-Makefile
