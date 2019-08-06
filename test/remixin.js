@@ -1,6 +1,6 @@
 import expect from 'expect.js';
 import _ from 'underscore';
-import { Mixin } from './src/remixin';
+import { Mixin } from '../src/remixin';
 
 Mixin.debug = true;
 
