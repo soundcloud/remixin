@@ -1,3 +1,9 @@
+## 2.0.0 (2019-08-06)
+
+- Modernize and transpile Remixin's syntax.
+- Stop including multiple build files in the npm package and version control.
+- Replace the `__DEBUG__` global variable (that is used to toggle some debugging behavior) with a `debug` static property.
+
 ## 1.0.2 (2016-11-17)
 
 - Optimize function calls by avoiding passing the `arguments` object around.

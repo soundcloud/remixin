@@ -1,6 +1,6 @@
 {
   "name": "remixin",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "Aspect-oriented, mixin library",
   "repository": "soundcloud/remixin",
   "author": "SoundCloud",

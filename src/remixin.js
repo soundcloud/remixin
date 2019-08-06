@@ -1,8 +1,3 @@
-/*!
- * Remixin v1.0.3
- * (c) SoundCloud 2015
- * Remixin may be freely distributed under the MIT license.
- */
 import _ from 'underscore';
 
 const SPECIAL_KEYS = ['before', 'after', 'around', 'requires', 'override', 'defaults', 'applyTo', 'requirePrototype', 'merge'];
