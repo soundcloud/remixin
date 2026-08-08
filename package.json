@@ -21,11 +21,11 @@
     "underscore": "^1.9.1"
   },
   "devDependencies": {
-    "@babel/cli": "7.4.4",
+    "@babel/cli": "8.0.4",
     "@babel/core": "7.4.5",
-    "@babel/plugin-transform-modules-umd": "7.2.0",
-    "@babel/preset-env": "7.4.5",
-    "@babel/register": "7.4.4",
+    "@babel/plugin-transform-modules-umd": "8.0.1",
+    "@babel/preset-env": "8.0.2",
+    "@babel/register": "8.0.1",
     "expect.js": "0.3.1",
     "mocha": "5.2.0",
     "nyc": "12.0.2"
